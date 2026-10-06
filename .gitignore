@@ -1,0 +1,14 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+node_modules/
+.openai/
+.sites-checkout/
+*.pdf
+*.docx
+*.pptx
+*.key
+*.pem
+*.p12
+*.tar.gz
