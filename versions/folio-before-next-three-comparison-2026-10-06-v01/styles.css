@@ -718,25 +718,3 @@ footer{background:#e8eef0;border-top:1px solid var(--line)}
 #magazinesView .collection-add button{padding:7px 8px;font-size:.68rem}
 #magazinesView .collection-hint{font-size:.67rem;line-height:1.35;padding:8px}
 @media(max-width:600px){#magazinesView .magazine-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}#magazinesView .mag-photo,#magazinesView .mag-card:nth-child(3n+2) .mag-photo,#magazinesView .mag-card:nth-child(3n+3) .mag-photo{height:155px}#magazinesView .mag-copy{padding:9px}#magazinesView .mag-card__meta{display:block}#magazinesView .mag-card__meta span{display:block;text-align:left!important}#magazinesView .mag-copy h2{font-size:.76rem}#magazinesView .collection-add{grid-template-columns:1fr}#magazinesView .collection-add button{width:100%}}
-
-/* Make the three-book queue a practical reading decision. */
-.up-next__item{grid-template-columns:68px minmax(0,1fr);align-items:start}
-.up-next__copy{gap:10px}
-.up-next__details{display:grid;gap:6px;margin:0;padding-top:8px;border-top:1px solid var(--line);font-size:.71rem}
-.up-next__details>div{display:grid;grid-template-columns:44px minmax(0,1fr);gap:5px}
-.up-next__details dt{color:var(--muted);font-weight:600}
-.up-next__details dd{margin:0;min-width:0;overflow-wrap:anywhere;line-height:1.45}
-.up-next__note{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;white-space:pre-line}
-.up-next__no-note{color:var(--muted)}
-.up-next__actions{margin-top:auto}
-.up-next__actions .up-next__start{background:var(--ink);color:var(--paper);border-color:var(--ink);font-weight:700}
-.up-next__actions .up-next__start:hover{opacity:.86}
-@media(max-width:900px){.up-next__grid{grid-template-columns:1fr 1fr}}
-@media(max-width:600px){.up-next__grid{grid-template-columns:1fr}.up-next__item{grid-template-columns:72px minmax(0,1fr)}}
-
-.book-evidence__purpose{margin:8px 0 0;padding:7px 9px;background:#edf0eb;color:#394940;font-size:.68rem;line-height:1.55}
-.reason-feedback{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:8px;border-top:1px solid #e2ded5}
-.reason-feedback span{flex:1 1 100%;font-size:.64rem;color:#66675f}
-.reason-feedback button{border:1px solid #b9bcb5;background:transparent;color:#454b46;padding:5px 8px;font:inherit;font-size:.64rem;cursor:pointer}
-.reason-feedback button[aria-pressed="true"]{border-color:#4d6860;background:#e5eeea;color:#254b3e;font-weight:700}
-.reason-feedback button:focus-visible{outline:2px solid #325c82;outline-offset:2px}

@@ -1,0 +1,12 @@
+{
+  "updatedAt": "2026-10-06",
+  "items": [
+    {"id":"gift-aladin-bookmark","type":"goods","retailer":"알라딘","title":"본투리드 투명 북마크","detail":"책장을 넘기는 순간에 남기는 작은 표시","url":"https://www.aladin.co.kr/shop/wproduct.aspx?ItemId=292136860","image":"https://image.aladin.co.kr/product/29213/68/cover500/g562431969.jpg","photoType":"상품 사진","photoSource":"https://www.aladin.co.kr/shop/wproduct.aspx?ItemId=292136860","checkedAt":"2026-10-06"},
+    {"id":"gift-yes24-rest","type":"goods","retailer":"YES24","title":"[리센스] 북 레스트_서랍형","detail":"읽던 책을 잠시 펼쳐 두는 진행형 책장","url":"https://www.yes24.com/product/goods/123181816","image":"https://image.yes24.com/goods/123181816/L","photoType":"상품 사진","photoSource":"https://www.yes24.com/product/goods/123181816","checkedAt":"2026-10-06"},
+    {"id":"gift-yes24-cover","type":"goods","retailer":"YES24","title":"[리센스] 오늘의 한 권_북커버 (그린)","detail":"밖으로 가지고 나갈 책을 위한 북커버","url":"https://www.yes24.com/product/goods/142252164","image":"https://image.yes24.com/goods/142252164/L","photoType":"상품 사진","photoSource":"https://www.yes24.com/product/goods/142252164","checkedAt":"2026-10-06"},
+    {"id":"mag-yes24-singles-b","type":"bonus","retailer":"YES24","title":"Singles 싱글즈 B형 · 2026년 6월","detail":"힌스 로 글로우 듀이볼 (버니핑크+베리듀)","url":"https://www.yes24.com/product/goods/189504775","image":"https://image.yes24.com/goods/189504775/L","photoType":"잡지 표지","photoSource":"https://www.yes24.com/product/goods/189504775","checkedAt":"2026-10-06"},
+    {"id":"mag-yes24-singles-c","type":"bonus","retailer":"YES24","title":"Singles 싱글즈 C형 · 2026년 6월","detail":"힌스 로 글로우 듀이볼 (피버듀+진저피치)","url":"https://www.yes24.com/product/goods/189504856","image":"https://image.yes24.com/goods/189504856/L","photoType":"잡지 표지","photoSource":"https://www.yes24.com/product/goods/189504856","checkedAt":"2026-10-06"},
+    {"id":"mag-aladin-monomax","type":"bonus","retailer":"알라딘","title":"Mono Max · 2026년 7월","detail":"캡틴스태그 메쉬 포켓 토트백","url":"https://www.aladin.co.kr/shop/wproduct.aspx?ItemId=391846745","image":"https://monomax.jp/official/wp-content/uploads/2026/05/01-1000x1000.jpg","photoType":"부록 실물","photoSource":"https://monomax.jp/magazine/343592/","checkedAt":"2026-10-06"},
+    {"id":"mag-aladin-liniere","type":"bonus","retailer":"알라딘","title":"リンネル · 2026년 7월","detail":"무민 보냉백","url":"https://www.aladin.co.kr/shop/wproduct.aspx?ItemId=391010778","image":"https://liniere.jp/wp/wp-content/uploads/2026/05/liniere2607_furoku_tujyo_01-593x593.jpg","photoType":"부록 실물","photoSource":"https://liniere.jp/magazine/96785/","checkedAt":"2026-10-06"}
+  ]
+}
