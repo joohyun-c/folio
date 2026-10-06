@@ -28,24 +28,7 @@ function normalizeKakao(document) {
   };
 }
 
-function normalizeGoogleBook(item) {
-  const volume = item?.volumeInfo || {};
-  const image = volume.imageLinks?.thumbnail || volume.imageLinks?.smallThumbnail || '';
-  const info = volume.infoLink || `https://books.google.com/books?id=${encodeURIComponent(String(item?.id || ''))}`;
-  return {
-    id:'google:'+String(item?.id || '').slice(0,100),
-    title:String(volume.title || '').trim(),
-    author:Array.isArray(volume.authors) && volume.authors.length ? volume.authors.slice(0,3).join(', ') : '저자 정보 없음',
-    description:String(volume.description || '').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim().slice(0,1500),
-    tags:Array.isArray(volume.categories) ? volume.categories.slice(0,8) : [],
-    goals:[], pages:Number(volume.pageCount) > 0 ? Number(volume.pageCount) : null,
-    image:/^https?:\/\//.test(image) ? image.replace(/^http:/,'https:') : null,
-    url:/^https?:\/\//.test(info) ? info.replace(/^http:/,'https:') : 'https://books.google.com/',
-    source:'google'
-  };
-}
-
-function createAppServer({key = process.env.FOLIO_KAKAO_REST_KEY || '', libraryKey = process.env.FOLIO_DATA4LIBRARY_AUTH_KEY || '', geminiKey = process.env.GEMINI_API_KEY || '', booksKey = process.env.FOLIO_GOOGLE_BOOKS_API_KEY || '', fetchImpl = fetch, distDir = DIST} = {}) {
+function createAppServer({key = process.env.FOLIO_KAKAO_REST_KEY || '', libraryKey = process.env.FOLIO_DATA4LIBRARY_AUTH_KEY || '', geminiKey = process.env.GEMINI_API_KEY || '', fetchImpl = fetch, distDir = DIST} = {}) {
   const cache = new Map();
   const library = createData4LibraryClient({key:libraryKey,fetchImpl});
   return http.createServer(async (request, response) => {
@@ -64,39 +47,7 @@ function createAppServer({key = process.env.FOLIO_KAKAO_REST_KEY || '', libraryK
       if (request.method === 'OPTIONS') {response.writeHead(204);return response.end()}
       if (url.pathname === '/api/capabilities') {
         if (request.method !== 'GET') return sendJson(response, 405, {error:'Method not allowed'});
-        return sendJson(response, 200, {gemini:!!geminiKey,library:!!libraryKey,googleBooks:!!booksKey});
-      }
-      if (url.pathname === '/api/google-books') {
-        if (request.method !== 'GET') return sendJson(response, 405, {error:'Method not allowed'});
-        if (origin && !response.getHeader('Access-Control-Allow-Origin')) return sendJson(response, 403, {error:'Origin not allowed'});
-        const query = String(url.searchParams.get('query') || '').trim();
-        const page = Number(url.searchParams.get('page') || '1');
-        if (!query || query.length > 80 || !Number.isInteger(page) || page < 1 || page > 20) return sendJson(response, 400, {error:'검색어 또는 페이지가 올바르지 않습니다.'});
-        if (!booksKey) return sendJson(response, 200, {configured:false,books:[],source:'google'});
-        const cacheKey = 'google\n'+query+'\n'+page;
-        const cached = cache.get(cacheKey);
-        if (cached && cached.expires > Date.now()) return sendJson(response, 200, cached.value);
-        const target = new URL('https://www.googleapis.com/books/v1/volumes');
-        target.searchParams.set('q',query);
-        target.searchParams.set('langRestrict','ko');
-        target.searchParams.set('printType','books');
-        target.searchParams.set('startIndex',String((page-1)*30));
-        target.searchParams.set('maxResults','30');
-        target.searchParams.set('key',booksKey);
-        const controller = new AbortController();
-        const timer = setTimeout(()=>controller.abort(),8000);
-        try {
-          const upstream = await fetchImpl(target,{signal:controller.signal});
-          if (upstream.status === 429) return sendJson(response,429,{error:'Google Books 호출 한도에 도달했습니다.'});
-          if (!upstream.ok) return sendJson(response,502,{error:'Google Books 검색에 연결하지 못했습니다.'});
-          const data = await upstream.json();
-          const books = (Array.isArray(data.items) ? data.items : []).map(normalizeGoogleBook).filter((book)=>book.id !== 'google:' && book.title);
-          const value = {configured:true,books,source:'google',isEnd:(page-1)*30+books.length >= Number(data.totalItems || 0)};
-          cache.set(cacheKey,{value,expires:Date.now()+10*60*1000});
-          if(cache.size>200)cache.delete(cache.keys().next().value);
-          return sendJson(response,200,value);
-        } catch {return sendJson(response,502,{error:'Google Books 검색에 연결하지 못했습니다.'})}
-        finally {clearTimeout(timer)}
+        return sendJson(response, 200, {gemini:!!geminiKey,library:!!libraryKey});
       }
       if (url.pathname === '/api/library-books' || url.pathname === '/api/library-detail') {
         if (request.method !== 'GET') return sendJson(response, 405, {error:'Method not allowed'});

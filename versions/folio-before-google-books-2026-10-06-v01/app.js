@@ -105,7 +105,7 @@ function score(book){
   if(focusMatches.length){value+=focusMatches.length*8;reasons.push('관심 있는 일: '+focusMatches[0])}
   const matched=p.interests.filter((x)=>tags.includes(x));
   if(matched.length){value+=matched.length*5;reasons.push('관심 주제: '+matched.slice(0,2).join(', '))}
-  if(['kakao','data4library','google'].includes(book.source)&&p.interests.includes(book.searchInterest)){value+=6;reasons.push('선택한 주제로 찾은 책')}if(book.aiRecommendation){value+=12;reasons.push('책 소개를 바탕으로 한 AI 추천')}
+  if(['kakao','data4library'].includes(book.source)&&p.interests.includes(book.searchInterest)){value+=6;reasons.push('선택한 주제로 찾은 국내 책')}if(book.aiRecommendation){value+=12;reasons.push('책 소개를 바탕으로 한 AI 추천')}
   const vibeMatches=p.vibes.filter((v)=>VIBE_PATTERNS[v].test(hay));
   if(vibeMatches.length){value+=vibeMatches.length*5;reasons.push('끌리는 분위기: '+vibeMatches[0])}
   const titleText=(book.title+' '+book.author).toLowerCase();
@@ -241,7 +241,7 @@ async function getApiConnection(){
     if(location.port==='8765'&&/^(localhost|127\.0\.0\.\d+)$/.test(location.hostname))bases.push('http://localhost:8768','http://localhost:8767');
     for(const base of bases){try{const capabilities=await fetchJson(base+'/api/capabilities',1300);if(capabilities&&typeof capabilities.library==='boolean'){libraryConfigured=capabilities.library;return {base,capabilities}}}catch{}}
     libraryConfigured=false;
-    return {base:'',capabilities:{library:false,gemini:false,googleBooks:false}};
+    return {base:'',capabilities:{library:false,gemini:false}};
   })();
   return apiConnection;
 }
@@ -250,12 +250,6 @@ async function searchDomesticBooks(query,page){
   if(!capabilities.library)return {books:[],source:'data4library'};
   try{let data=await fetchJson(base+'/api/library-books?query='+encodeURIComponent(query)+'&page='+page,9000);if(!currentQuery&&!data.books?.length&&query.includes(' '))data=await fetchJson(base+'/api/library-books?query='+encodeURIComponent(query.split(' ')[0])+'&page='+page,9000);libraryStatus='active';const interest=currentQuery?'':state.profile.interests[0]||'';return {books:(data.books||[]).map((book)=>({...book,searchInterest:interest})),source:'data4library'}}
   catch(error){libraryStatus=/HTTP 503/.test(error.message)?'pending':'error';console.info('Data4Library unavailable:',error.message);return {books:[],source:'data4library'}}
-}
-async function searchGoogleBooks(query,page){
-  const {base,capabilities}=await getApiConnection();
-  if(!capabilities.googleBooks)return {books:[],source:'google'};
-  try{const data=await fetchJson(base+'/api/google-books?query='+encodeURIComponent(query)+'&page='+page,10000);const interest=currentQuery?'':state.profile.interests[0]||'';return {books:(data.books||[]).map((book)=>({...book,searchInterest:interest})),source:'google'}}
-  catch(error){console.info('Google Books unavailable:',error.message);return {books:[],source:'google'}}
 }
 async function enrichDomesticBook(book){
   if(book.source!=='data4library'||book.detailChecked||!/^97[89]\d{10}$/.test(book.isbn||'')||book.description&&book.image)return;
@@ -282,7 +276,7 @@ async function loadBooks(query,page=1){
   const serial=++requestSerial;currentQuery=query||'';quickLoading=quickActive&&!currentQuery;renderShortlist();
   if(!currentQuery&&!anySignal()&&page===1){currentBooks=SEEDS.slice();currentSource='curated';currentPage=0;quickLoading=false;renderShortlist();renderFeed();return}
   $('feedStatus').textContent='책을 찾고 있습니다…';
-  const queries=currentQuery?[currentQuery]:candidateQueries(),koreanQuery=domesticQuery(currentQuery),results=await Promise.all([searchDomesticBooks(koreanQuery,page),searchGoogleBooks(koreanQuery,page),...queries.map((term)=>searchRemote(term,page))]);
+  const queries=currentQuery?[currentQuery]:candidateQueries(),results=await Promise.all([searchDomesticBooks(domesticQuery(currentQuery),page),...queries.map((term)=>searchRemote(term,page))]);
   if(serial!==requestSerial)return;
    const external=uniqueBooks(results.flatMap((result)=>result.books)),sources=new Set(results.filter((result)=>result.books.length).map((result)=>result.source));
   const examples=currentQuery?SEEDS.filter((b)=>(b.title+' '+b.author+' '+b.tags.join(' ')).toLowerCase().includes(currentQuery.toLowerCase())):SEEDS.slice();

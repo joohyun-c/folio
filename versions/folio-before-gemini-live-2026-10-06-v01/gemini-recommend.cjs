@@ -1,4 +1,4 @@
-const MODEL = 'gemini-3.5-flash-lite';
+const MODEL = 'gemini-2.5-flash';
 
 function prepareCandidates(books) {
   if (!Array.isArray(books)) return [];
@@ -15,7 +15,7 @@ function prepareCandidates(books) {
     description: book.description.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 700),
     tags: Array.isArray(book.tags) ? book.tags.filter((tag) => typeof tag === 'string').slice(0, 6).map((tag) => tag.slice(0, 50)) : [],
     pages: Number.isFinite(Number(book.pages)) && Number(book.pages) > 0 ? Number(book.pages) : null,
-    source: book.source === 'data4library' ? '도서관 정보나루' : book.source === 'google' ? 'Google Books' : 'Open Library'
+    source: book.source === 'data4library' ? '도서관 정보나루' : 'Open Library'
   }));
 }
 

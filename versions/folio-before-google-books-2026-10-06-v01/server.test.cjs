@@ -69,34 +69,11 @@ test('a Kakao quota response stops the request without treating it as a paid res
 test('library books and AI capabilities stay unavailable without keys', async () => {
   await withServer({libraryKey:'',geminiKey:'',fetchImpl:()=>{throw Error('must not call upstream')}},async (origin)=>{
     const capabilities=await (await fetch(origin+'/api/capabilities')).json();
-    assert.deepEqual(capabilities,{gemini:false,library:false,googleBooks:false});
+    assert.deepEqual(capabilities,{gemini:false,library:false});
     const books=await (await fetch(origin+'/api/library-books?query='+encodeURIComponent('한국 소설'))).json();
     assert.equal(books.configured,false);
     const ai=await (await fetch(origin+'/api/recommendations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({profile:{},books:[]})})).json();
     assert.deepEqual(ai,{configured:false,recommendations:[]});
-  });
-});
-
-test('Google Books searches Korean volumes without exposing the server key', async () => {
-  let calls=0;
-  await withServer({booksKey:'private-books-key',fetchImpl:async(url)=>{
-    calls++;
-    assert.equal(url.hostname,'www.googleapis.com');
-    assert.equal(url.searchParams.get('key'),'private-books-key');
-    assert.equal(url.searchParams.get('langRestrict'),'ko');
-    assert.equal(url.searchParams.get('startIndex'),'30');
-    return {ok:true,status:200,json:async()=>({totalItems:35,items:[{id:'volume-1',volumeInfo:{title:'일하는 사람의 책',authors:['김작가'],description:'<b>일하는 방식</b>을 분석합니다.',imageLinks:{thumbnail:'http://books.google.com/cover.jpg'},infoLink:'https://books.google.com/book'}}]})};
-  }},async(origin)=>{
-    const address=origin+'/api/google-books?query='+encodeURIComponent('일과 커리어')+'&page=2';
-    const response=await fetch(address);
-    const body=await response.json();
-    assert.equal(body.books[0].source,'google');
-    assert.equal(body.books[0].title,'일하는 사람의 책');
-    assert.equal(body.books[0].description,'일하는 방식을 분석합니다.');
-    assert.equal(body.books[0].image,'https://books.google.com/cover.jpg');
-    assert.equal(JSON.stringify(body).includes('private-books-key'),false);
-    await fetch(address);
-    assert.equal(calls,1);
   });
 });
 
