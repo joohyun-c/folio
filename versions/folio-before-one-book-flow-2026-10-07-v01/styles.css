@@ -835,34 +835,3 @@ footer{background:#e8eef0;border-top:1px solid var(--line)}
 @media(max-width:1150px){#magazinesView .magazine-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:800px){#magazinesView .magazine-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){#magazinesView{padding-top:24px}#magazinesView .magazine-grid{grid-template-columns:1fr;gap:14px}#magazinesView .mag-photo,#magazinesView .mag-card:nth-child(3n+2) .mag-photo,#magazinesView .mag-card:nth-child(3n+3) .mag-photo{height:270px}#magazinesView .mag-copy{padding:13px 14px}#magazinesView .mag-copy h2{font-size:1rem}}
-
-/* A short decision flow keeps personal reasons and the next action together. */
-.quick-heading{align-items:start;margin-bottom:16px}
-.quick-heading>p:last-child{max-width:430px}
-.quick-prompt{margin:0 0 9px;color:var(--muted);font-size:.73rem;font-weight:700}
-.quick-presets{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px}
-.quick-presets button{min-height:34px;padding:6px 11px;border:1px solid #c5c9c3;border-radius:18px;background:transparent;color:#3f4e4a;font-size:.71rem;cursor:pointer}
-.quick-presets button:hover,.quick-presets button:focus-visible{background:#e8eee9;border-color:#75867d;outline-offset:2px}
-.shortlist{margin-top:24px}
-.shortlist-head{align-items:start}
-.shortlist-head h3{font-size:1.18rem}
-.shortlist-grid{gap:14px}
-.shortlist-card{grid-template-columns:57px minmax(0,1fr);gap:11px;border:1px solid #d6d9d4;border-left:1px solid #d6d9d4;padding:14px;align-items:start}
-.shortlist-cover{height:86px}
-.shortlist-copy{min-width:0}
-.shortlist-number{display:block;margin:0 0 5px;color:#66756e;font-size:.62rem;font-weight:700}
-.shortlist-card strong{font-size:.85rem}
-.shortlist-facts{display:grid;gap:0;margin:11px 0 12px;border-top:1px solid #e1e4dd}
-.shortlist-facts>div{padding:8px 0;border-bottom:1px solid #e1e4dd}
-.shortlist-facts dt{margin-bottom:3px;color:#67746d;font-size:.62rem;font-weight:700}
-.shortlist-facts dd{margin:0;color:#343e39;font-size:.7rem;line-height:1.5;overflow-wrap:anywhere}
-.shortlist-actions{gap:8px}
-.shortlist-actions button,.shortlist-actions button:last-child{margin:0;padding:5px 0;border:0;background:transparent;color:#626d65;font-size:.69rem;text-decoration:underline;text-underline-offset:2px}
-.shortlist-actions button[data-start-reading]{padding:7px 9px;border:1px solid #415c50;background:#415c50;color:#fff;font-weight:700;text-decoration:none}
-.shortlist-actions button[data-start-reading]:hover{background:#30493d}
-.shortlist-caveat{margin:11px 0 0;color:#68736d;font-size:.68rem;line-height:1.5}
-.taste-starter{margin-top:25px;padding-top:14px}
-.taste-starter summary{width:max-content;max-width:100%;color:#40564c;font-size:.76rem;font-weight:700;cursor:pointer}
-.taste-starter>p{margin:8px 0 14px;color:var(--muted);font-size:.72rem}
-@media(max-width:1050px){.shortlist-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:760px){.quick-heading{display:block}.quick-heading>p:last-child{margin-top:7px}.shortlist-grid{grid-template-columns:1fr}}
