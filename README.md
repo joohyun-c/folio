@@ -4,7 +4,9 @@
 
 **시연 사이트:** https://folio-murex-pi.vercel.app/
 
-**발표 자료:** [folio 프로젝트 PPT (8장)](docs/presentation/folio-presentation-2026-10-08-v18.pptx)
+**발표 자료:** [PDF로 바로 보기 (8장)](docs/presentation/folio-presentation-2026-10-08-v18-view.pdf) · [PPT 파일 내려받기](docs/presentation/folio-presentation-2026-10-08-v18.pptx)
+
+GitHub는 PPT 슬라이드를 화면에 미리 보여주지 않습니다. PPT 파일 페이지에서는 **Download raw file**을 눌러 저장한 뒤 PowerPoint나 Keynote로 여세요.
 
 첫 서가는 folio가 편집한 예시 목록입니다. 현재 공개 사이트에서는 알라딘의 주간 도서 목록과 도서관 정보나루·Open Library의 책 검색, Gemini 추천이 작동합니다. Google Books 검색은 API 키가 없어 아직 연결되지 않았습니다.
 
