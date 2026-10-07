@@ -804,34 +804,3 @@ footer{background:#e8eef0;border-top:1px solid var(--line)}
 @media(max-width:850px){.shelf-decor__body{grid-template-columns:1fr}.shelf-scene{min-height:430px}}
 @media(max-width:520px){.shelf-scene{min-height:380px;border-width:8px}.shelf-scene__books{inset:42px 10px 22px;gap:13px 9px}.shelf-scene__slot{border-left-width:5px}.shelf-scene__volume{left:7px;right:5px;gap:5px}.shelf-scene__cover{width:clamp(43px,12vw,60px);height:clamp(69px,19vw,88px)}.shelf-scene__volume-meta strong{font-size:.62rem}.shelf-scene__volume-meta small{font-size:.52rem}.shelf-scene__slot--empty::before{left:12px;width:34px;height:60px}.shelf-scene__vacancy,.shelf-scene__start{left:54px;font-size:.58rem}.shelf-scene__index{left:11px;top:12px}.shelf-scene__bookplate{max-width:54%;right:8px}}
 @media(prefers-reduced-motion:reduce){.shelf-scene__cover{transition:none}}
-
-/* Goods first: let the object photo and its name lead the magazine detail. */
-#magazinesView{padding-top:30px}
-#magazinesView>.eyebrow{margin-bottom:5px}
-#magazinesView>h1{font-size:clamp(1.85rem,2.8vw,2.45rem);line-height:1.18;margin:6px 0 7px}
-#magazinesView>p:not(.eyebrow){font-size:.82rem;line-height:1.55;margin:0}
-#magazinesView .extras-finder{margin-top:20px;gap:10px}
-#magazinesView .extras-toolbar{margin-top:12px}
-#magazinesView #extrasStatus{margin:13px 0 0;color:#69716e;font-size:.69rem}
-#magazinesView .magazine-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:16px}
-#magazinesView .mag-card{display:flex;flex-direction:column;min-width:0;border:1px solid #d6d9d5;background:#fff}
-#magazinesView .mag-photo,#magazinesView .mag-card:nth-child(3n+2) .mag-photo,#magazinesView .mag-card:nth-child(3n+3) .mag-photo{height:255px;border-bottom:1px solid #e3e5e0;background:#f2f3ef}
-#magazinesView .mag-photo img{width:100%;height:100%;object-fit:contain}
-#magazinesView .mag-copy{display:flex;flex:1;flex-direction:column;align-items:start;padding:13px 14px 14px}
-#magazinesView .mag-card__category{display:inline-block;color:#52665e;font-size:.64rem;font-weight:700;line-height:1.35}
-#magazinesView .mag-copy h2{min-height:0;margin:6px 0 4px;color:#2c3431;font-size:.96rem;line-height:1.38;letter-spacing:-.035em;overflow-wrap:anywhere}
-#magazinesView .mag-card__brand{margin:0;color:#4c5751;font-size:.72rem;line-height:1.4;font-weight:600}
-#magazinesView .mag-card__issue{margin:10px 0 12px;color:#767d78;font-size:.68rem;line-height:1.5}
-#magazinesView .mag-card__actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:auto;width:100%}
-#magazinesView .mag-card__actions button{min-height:33px;padding:6px 9px;border:1px solid #778b80;background:#fff;color:#3c584b;font:inherit;font-size:.7rem;font-weight:700;cursor:pointer}
-#magazinesView .mag-card__actions button:hover,#magazinesView .mag-card__actions button[aria-pressed="true"]{background:#e9efea}
-#magazinesView .mag-card__actions button:focus-visible{outline:2px solid #315d76;outline-offset:2px}
-#magazinesView .mag-card__actions a{font-size:.7rem;font-weight:600;white-space:nowrap}
-#magazinesView .mag-card__organize{width:100%;margin-top:10px;padding-top:7px;border-top:1px solid #e6e7e2}
-#magazinesView .mag-card__organize summary,#magazinesView .card-source summary{color:#747c75;font-size:.66rem;cursor:pointer}
-#magazinesView .mag-card__organize .collection-add{margin:8px 0 2px}
-#magazinesView .card-source{margin-top:9px}
-#magazinesView .source-details{margin-top:22px}
-@media(max-width:1150px){#magazinesView .magazine-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:800px){#magazinesView .magazine-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:520px){#magazinesView{padding-top:24px}#magazinesView .magazine-grid{grid-template-columns:1fr;gap:14px}#magazinesView .mag-photo,#magazinesView .mag-card:nth-child(3n+2) .mag-photo,#magazinesView .mag-card:nth-child(3n+3) .mag-photo{height:270px}#magazinesView .mag-copy{padding:13px 14px}#magazinesView .mag-copy h2{font-size:1rem}}
