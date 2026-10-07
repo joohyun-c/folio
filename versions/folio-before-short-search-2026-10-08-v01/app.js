@@ -166,7 +166,7 @@ function refineSearch(books,query){
   const needle=query.toLocaleLowerCase().replace(/\s+/g,' ').trim(),tokens=needle.split(' ').filter((part)=>part.length>1),derived=/summary|workbook|journal|tracker|study guide|요약|해설|워크북/i;
   const fictionTopic=needle==='소설'||/^(추리|판타지|로맨스|힐링) 소설$/.test(needle);
   const nonfictionFiction=/소설\s*(작법|쓰기|연구|이론|비평|읽기|론|잘\s*쓰는)|문학사|작품론|소설가가\s*되는|소설의\s*(구조|역사|설득)|로맨스\s*안내서/i;
-  const rankedBooks=books.filter((book)=>book.source==='aladin'||!fictionTopic||!nonfictionFiction.test(book.title)).map((book)=>{const title=book.title.toLocaleLowerCase(),author=book.author.toLocaleLowerCase(),hay=(title+' '+author);const hits=tokens.filter((part)=>hay.includes(part)).length;const authorRank=author===needle?35:author.startsWith(needle)?25:author.includes(needle)?16:0;return {book,hits,rank:book.source==='aladin'?30-Math.min(book.bestsellerRank||30,30)/10:(title===needle?20:title.startsWith(needle)?10:0)+authorRank+hits*3+(book.image?2:0)+(book.pages?1:0)+(book.description?.length>=50?4:0)}}).filter((entry)=>entry.book.source==='aladin'||entry.hits>0||entry.book.title.toLocaleLowerCase().includes(needle));
+  const rankedBooks=books.filter((book)=>book.source==='aladin'||!fictionTopic||!nonfictionFiction.test(book.title)).map((book)=>{const title=book.title.toLocaleLowerCase(),hay=(book.title+' '+book.author).toLocaleLowerCase();const hits=tokens.filter((part)=>hay.includes(part)).length;return {book,hits,rank:book.source==='aladin'?30-Math.min(book.bestsellerRank||30,30)/10:(title===needle?20:title.startsWith(needle)?10:0)+hits*3+(book.image?2:0)+(book.pages?1:0)+(book.description?.length>=50?4:0)}}).filter((entry)=>entry.book.source==='aladin'||entry.hits>0||entry.book.title.toLocaleLowerCase().includes(needle));
   let candidates=rankedBooks.length?rankedBooks:books.slice(0,12).map((book,index)=>({book,rank:-index}));
   if(!derived.test(needle)){const cleanCandidates=candidates.filter((entry)=>!derived.test(entry.book.title));if(cleanCandidates.length)candidates=cleanCandidates}
   candidates.sort((a,b)=>b.rank-a.rank);
@@ -425,32 +425,7 @@ async function applyAiRecommendations(books){
 }
 function domesticQuery(query){if(query)return query;const p=state.profile;if(p.interests.includes('일과 커리어')&&p.careerFocus.length)return KOREAN_CAREER_SEARCH[p.careerFocus[0]];if(p.interests.length)return KOREAN_INTEREST_SEARCH[p.interests[0]];if(p.taste?.liked)return Taste.ASPECTS[p.taste.liked.aspect].korean;if(p.favorite.trim())return p.favorite.trim();return '책'}
 async function searchKoreanBooks(query,page){try{const base=location.port==='8765'&&/^(localhost|127\.0\.0\.\d+)$/.test(location.hostname)?'http://localhost:8767':'';const data=await fetchJson(base+'/api/books?query='+encodeURIComponent(query)+'&page='+page,9000);kakaoConfigured=!!data.configured;if(!data.configured)return {books:[],source:'kakao'};const interest=state.profile.interests[0]||'';return {books:(data.books||[]).map((book)=>({...book,searchInterest:interest})),source:'kakao'}}catch(error){kakaoConfigured=/HTTP 429/.test(error.message)?'quota':false;console.info('Kakao Books unavailable:',error.message);return {books:[],source:'kakao'}}}
-async function searchRemote(query,page=1){
-  try{
-    const language=/[가-힣]/.test(query)?'ko':'en';
-    const options='&lang='+language+'&limit=40&page='+page+'&fields=key,title,author_name,cover_i,number_of_pages_median,subject,description';
-    const base='https://openlibrary.org/search.json?';
-    let docs=[];
-    if([...query.trim()].length<3){
-      // Open Library rejects q values shorter than three characters. Its title and author fields accept them.
-      for(const field of ['author','title']){
-        const data=await fetchOpenLibrary(base+field+'='+encodeURIComponent(query)+options);
-        docs.push(...(data.docs||[]));
-      }
-    }else{
-      const term=query.toLowerCase()==='fiction'?'subject=fiction':'q='+encodeURIComponent(query);
-      const data=await fetchOpenLibrary(base+term+options);
-      docs=data.docs||[];
-    }
-    const seen=new Set();
-    const openBooks=docs.map(normalizeOpen).filter((book)=>{
-      if(!book.title||seen.has(book.id))return false;
-      seen.add(book.id);return true;
-    });
-    if(openBooks.length)return {books:openBooks,source:'openlibrary'};
-  }catch(error){console.info('Open Library unavailable:',error.message)}
-  return {books:[],source:'example'};
-}
+async function searchRemote(query,page=1){const q=encodeURIComponent(query);try{const language=/[가-힣]/.test(query)?'ko':'en';const term=query.toLowerCase()==='fiction'?'subject=fiction':'q='+q;const data=await fetchOpenLibrary('https://openlibrary.org/search.json?'+term+'&lang='+language+'&limit=40&page='+page+'&fields=key,title,author_name,cover_i,number_of_pages_median,subject,description');const openBooks=(data.docs||[]).map(normalizeOpen).filter((b)=>b.title);if(openBooks.length)return {books:openBooks,source:'openlibrary'}}catch(e){console.info('Open Library unavailable:',e.message)}return {books:[],source:'example'}}
 function candidateQuery(){const p=state.profile;if(p.interests.includes('일과 커리어')&&p.careerFocus.length)return CAREER_SEARCH[p.careerFocus[0]];const keywords={'소설':'fiction','일과 커리어':'career development business','마음과 관계':'psychology','인문·사회':'social science','과학':'science','여행':'travel','경제':'finance'};if(p.interests.length&&p.vibes.length)return (keywords[p.interests[0]]||p.interests[0])+' '+VIBE_SEARCH[p.vibes[0]];if(p.interests.length)return keywords[p.interests[0]]||p.interests[0];if(p.taste?.liked)return Taste.ASPECTS[p.taste.liked.aspect].english;if(p.vibes.length)return VIBE_SEARCH[p.vibes[0]];if(p.favorite.trim())return p.favorite.trim();if(state.saved.length)return state.saved[0].author;if(p.goals.includes('실무에 적용'))return 'business';if(p.goals.includes('새로운 관점'))return 'ideas';return 'books'}
 function candidateQueries(){const first=candidateQuery(),p=state.profile;const keywords={'소설':'fiction','일과 커리어':'career development business','마음과 관계':'psychology','인문·사회':'social science','과학':'science','여행':'travel','경제':'finance'};const extra=p.favorite.trim()&&p.favorite.trim()!==first?p.favorite.trim():p.careerFocus.length>1?CAREER_SEARCH[p.careerFocus[1]]:p.interests.length>1?keywords[p.interests[1]]||p.interests[1]:'';const base=p.careerFocus.length?CAREER_SEARCH[p.careerFocus[0]].split(' ').slice(0,2).join(' '):keywords[p.interests[0]]||'';const purpose=p.goals.length&&base?base+' '+GOAL_SEARCH[p.goals[0]]:'';return [...new Set([first,purpose,extra].filter(Boolean))].slice(0,3)}
 async function loadBooks(query,page=1){
