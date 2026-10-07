@@ -100,53 +100,6 @@ test('Google Books searches Korean volumes without exposing the server key', asy
   });
 });
 
-test('Google Books retries one temporary upstream outage', async () => {
-  let calls=0;
-  await withServer({booksKey:'private-books-key',fetchImpl:async()=>{
-    calls++;
-    return calls===1?{ok:false,status:503}:{ok:true,status:200,json:async()=>({totalItems:1,items:[{id:'korean-1',volumeInfo:{title:'한국어 책'}}]})};
-  }},async(origin)=>{
-    const response=await fetch(origin+'/api/google-books?query='+encodeURIComponent('한국어'));
-    const body=await response.json();
-    assert.equal(response.status,200);
-    assert.equal(body.books[0].title,'한국어 책');
-    assert.equal(calls,2);
-  });
-});
-
-test('weekly bestseller list and product introduction are fetched once from public pages', async()=>{
-  let listingCalls=0,detailCalls=0;
-  const one=(id,title)=>`<div class="ss_book_box" itemId="${id}"><img src="https://image.aladin.co.kr/product/1/cover200/a.jpg" class="front_cover"><li><a href="https://www.aladin.co.kr/shop/wproduct.aspx?ItemId=${id}" class="bo3">${title}</a></li><li><a href="/Search/wSearchResult.aspx?AuthorSearch=Writer@1">김작가</a> (지은이) | 출판사 | 2026년 10월</li></div>`;
-  await withServer({fetchImpl:async(url)=>{
-    if(String(url).includes('/shop/common/wbest.aspx')){listingCalls++;return {ok:true,text:async()=>one(1,'첫 소설')+one(2,'둘째 소설')+one(3,'셋째 소설')}}
-    detailCalls++;assert.match(String(url),/ItemId=1$/);return {ok:true,text:async()=>'<meta name="description" content="낯선 도시에서 만난 인물들이 서로 다른 선택을 하는 이야기를 따라갑니다. 각 인물이 겪는 변화를 소개합니다." />'};
-  }},async(origin)=>{
-    const address=origin+'/api/bestsellers?category=fiction';
-    const books=await (await fetch(address)).json();
-    assert.equal(books.books.length,3);
-    assert.equal(books.books[0].publishedDate,'2026-10');
-    await fetch(address);
-    assert.equal(listingCalls,1);
-    const detailAddress=origin+'/api/bestseller-detail?category=fiction&id=aladin:1';
-    const detail=await (await fetch(detailAddress)).json();
-    assert.match(detail.description,/낯선 도시/);
-    await fetch(detailAddress);
-    assert.equal(detailCalls,1);
-    assert.equal((await fetch(origin+'/api/bestseller-detail?category=fiction&id=aladin:99')).status,404);
-  });
-});
-
-test('the app can post AI requests from its own origin while outsiders remain blocked', async () => {
-  await withServer({geminiKey:'server-only-key',fetchImpl:()=>{throw Error('no candidates must not call upstream')}},async(origin)=>{
-    const address=origin+'/api/recommendations';
-    const body=JSON.stringify({profile:{},books:[]});
-    const local=await fetch(address,{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body});
-    assert.equal(local.status,200);
-    const foreign=await fetch(address,{method:'POST',headers:{Origin:'https://example.com','Content-Type':'application/json'},body});
-    assert.equal(foreign.status,403);
-  });
-});
-
 test('library search returns Korean books through the server without exposing its key', async () => {
   await withServer({libraryKey:'private-library-key',fetchImpl:async(url)=>{
     assert.equal(url.searchParams.get('authKey'),'private-library-key');

@@ -449,9 +449,6 @@ dialog::backdrop{background:#26252188}
 .feed-head{margin-top:0;margin-bottom:20px;padding-bottom:17px}
 .feed-head p:last-child{font-size:.78rem}
 .feed-toolbar{padding:17px 0}
-.fiction-topics{align-items:center;gap:7px;margin:15px 0 0}.fiction-topics[hidden]{display:none}.fiction-topics span{font-size:.75rem;color:var(--muted);margin-right:5px}.fiction-topics .chip{padding:6px 11px}
-.book-grid{columns:165px;column-gap:15px}.book-card{margin-bottom:21px}.cover-wrap{min-height:0}.cover-placeholder{min-height:0;font-size:1rem}
-@media(max-width:540px){.book-grid{columns:2 135px;column-gap:12px}}
 .page-view{padding-top:40px}
 .page-view>h1{font-size:clamp(2.15rem,3.2vw,3.15rem);margin:9px 0}
 .page-view>p:not(.eyebrow){line-height:1.55}

@@ -4,7 +4,6 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const {recommendWithGemini} = require('./lib/gemini-recommend.cjs');
 const {createData4LibraryClient, Data4LibraryError} = require('./lib/data4library.cjs');
-const {parseBestsellers,bestsellerUrl,parseProductDescription} = require('./lib/aladin-bestsellers.cjs');
 
 const DIST = path.resolve(__dirname, 'dist');
 const TYPES = {'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.ico':'image/x-icon'};
@@ -40,7 +39,6 @@ function normalizeGoogleBook(item) {
     description:String(volume.description || '').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim().slice(0,1500),
     tags:Array.isArray(volume.categories) ? volume.categories.slice(0,8) : [],
     goals:[], pages:Number(volume.pageCount) > 0 ? Number(volume.pageCount) : null,
-    publishedDate:/^\d{4}(?:-\d{2})?/.test(String(volume.publishedDate||'')) ? String(volume.publishedDate).slice(0,7) : '',
     image:/^https?:\/\//.test(image) ? image.replace(/^http:/,'https:') : null,
     url:/^https?:\/\//.test(info) ? info.replace(/^http:/,'https:') : 'https://books.google.com/',
     source:'google'
@@ -49,19 +47,6 @@ function normalizeGoogleBook(item) {
 
 function createAppServer({key = process.env.FOLIO_KAKAO_REST_KEY || '', libraryKey = process.env.FOLIO_DATA4LIBRARY_AUTH_KEY || '', geminiKey = process.env.GEMINI_API_KEY || '', booksKey = process.env.FOLIO_GOOGLE_BOOKS_API_KEY || '', fetchImpl = fetch, distDir = DIST} = {}) {
   const cache = new Map();
-  const bestsellerCache = new Map();
-  const bestsellerDetails = new Map();
-  let aladinQueue=Promise.resolve(),aladinNextAt=0;
-  function requestAladin(task) {
-    const pending=aladinQueue.catch(()=>{}).then(async()=>{
-      const delay=Math.max(0,aladinNextAt-Date.now());
-      if(delay)await new Promise((resolve)=>setTimeout(resolve,delay));
-      aladinNextAt=Date.now()+3000;
-      return task();
-    });
-    aladinQueue=pending.catch(()=>{});
-    return pending;
-  }
   const library = createData4LibraryClient({key:libraryKey,fetchImpl});
   return http.createServer(async (request, response) => {
     let url;
@@ -70,8 +55,7 @@ function createAppServer({key = process.env.FOLIO_KAKAO_REST_KEY || '', libraryK
 
     if (url.pathname.startsWith('/api/')) {
       const origin = request.headers.origin || '';
-      const sameOrigin = /^(?:localhost|127\.0\.0\.\d+):\d+$/.test(request.headers.host || '') && origin === 'http://' + request.headers.host;
-      if (sameOrigin || /^http:\/\/(?:localhost|127\.0\.0\.\d+):8765$/.test(origin)) {
+      if (/^http:\/\/(?:localhost|127\.0\.0\.\d+):8765$/.test(origin)) {
         response.setHeader('Access-Control-Allow-Origin', origin);
         response.setHeader('Vary', 'Origin');
         response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -81,47 +65,6 @@ function createAppServer({key = process.env.FOLIO_KAKAO_REST_KEY || '', libraryK
       if (url.pathname === '/api/capabilities') {
         if (request.method !== 'GET') return sendJson(response, 405, {error:'Method not allowed'});
         return sendJson(response, 200, {gemini:!!geminiKey,library:!!libraryKey,googleBooks:!!booksKey});
-      }
-      if (url.pathname === '/api/bestsellers') {
-        if (request.method !== 'GET') return sendJson(response, 405, {error:'Method not allowed'});
-        if (origin && !response.getHeader('Access-Control-Allow-Origin')) return sendJson(response, 403, {error:'Origin not allowed'});
-        const category=String(url.searchParams.get('category') || 'fiction');
-        const target=bestsellerUrl(category);
-        if (!target) return sendJson(response,400,{error:'올바르지 않은 도서 분야입니다.'});
-        const cached=bestsellerCache.get(category);
-        if (cached && cached.expires>Date.now()) return sendJson(response,200,cached.value);
-        const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
-        try {
-          const upstream=await requestAladin(()=>fetchImpl(target,{signal:controller.signal,headers:{Accept:'text/html'}}));
-          if (!upstream.ok) throw Error('Upstream '+upstream.status);
-          const books=parseBestsellers(await upstream.text(),category);
-          if (books.length<3) throw Error('Bestseller page changed');
-          const value={books,source:'aladin',category,updatedAt:new Date().toISOString(),url:target};
-          bestsellerCache.set(category,{value,expires:Date.now()+6*60*60*1000});
-          return sendJson(response,200,value);
-        } catch {
-          if (cached && Date.now()-Date.parse(cached.value.updatedAt)<7*24*60*60*1000) return sendJson(response,200,{...cached.value,stale:true});
-          return sendJson(response,502,{error:'주간 베스트셀러 목록을 불러오지 못했습니다.'});
-        } finally {clearTimeout(timer)}
-      }
-      if (url.pathname === '/api/bestseller-detail') {
-        if (request.method !== 'GET') return sendJson(response, 405, {error:'Method not allowed'});
-        if (origin && !response.getHeader('Access-Control-Allow-Origin')) return sendJson(response, 403, {error:'Origin not allowed'});
-        const category=String(url.searchParams.get('category') || 'fiction'),id=String(url.searchParams.get('id') || '');
-        const book=bestsellerCache.get(category)?.value.books.find((item)=>item.id===id);
-        if (!book) return sendJson(response,404,{error:'현재 주간 순위에서 찾을 수 없는 책입니다.'});
-        const cached=bestsellerDetails.get(id);
-        if(cached && cached.expires>Date.now())return sendJson(response,200,cached.value);
-        const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
-        try {
-          const upstream=await requestAladin(()=>fetchImpl(book.url,{signal:controller.signal,headers:{Accept:'text/html'}}));
-          if(!upstream.ok)throw Error('Upstream '+upstream.status);
-          const description=parseProductDescription(await upstream.text());
-          const value={id,description,source:'aladin'};
-          bestsellerDetails.set(id,{value,expires:Date.now()+24*60*60*1000});
-          return sendJson(response,200,value);
-        } catch {return sendJson(response,502,{error:'책 소개를 불러오지 못했습니다.'})}
-        finally {clearTimeout(timer)}
       }
       if (url.pathname === '/api/google-books') {
         if (request.method !== 'GET') return sendJson(response, 405, {error:'Method not allowed'});
@@ -143,11 +86,7 @@ function createAppServer({key = process.env.FOLIO_KAKAO_REST_KEY || '', libraryK
         const controller = new AbortController();
         const timer = setTimeout(()=>controller.abort(),8000);
         try {
-          let upstream = await fetchImpl(target,{signal:controller.signal});
-          for (let attempt=0; attempt<2 && [502,503].includes(upstream.status); attempt++) {
-            await new Promise((resolve)=>setTimeout(resolve,300*(attempt+1)));
-            upstream = await fetchImpl(target,{signal:controller.signal});
-          }
+          const upstream = await fetchImpl(target,{signal:controller.signal});
           if (upstream.status === 429) return sendJson(response,429,{error:'Google Books 호출 한도에 도달했습니다.'});
           if (!upstream.ok) return sendJson(response,502,{error:'Google Books 검색에 연결하지 못했습니다.'});
           const data = await upstream.json();
