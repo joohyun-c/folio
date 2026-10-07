@@ -70,7 +70,9 @@ function createAppServer({key = process.env.FOLIO_KAKAO_REST_KEY || '', libraryK
 
     if (url.pathname.startsWith('/api/')) {
       const origin = request.headers.origin || '';
-      const sameOrigin = /^(?:localhost|127\.0\.0\.\d+):\d+$/.test(request.headers.host || '') && origin === 'http://' + request.headers.host;
+      const host = request.headers.host || '';
+      const localHost = /^(?:localhost|127\.0\.0\.\d+):\d+$/.test(host);
+      const sameOrigin = !!host && origin === (localHost ? 'http://' : 'https://') + host;
       if (sameOrigin || /^http:\/\/(?:localhost|127\.0\.0\.\d+):8765$/.test(origin)) {
         response.setHeader('Access-Control-Allow-Origin', origin);
         response.setHeader('Vary', 'Origin');

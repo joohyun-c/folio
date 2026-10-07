@@ -142,6 +142,12 @@ test('the app can post AI requests from its own origin while outsiders remain bl
     const body=JSON.stringify({profile:{},books:[]});
     const local=await fetch(address,{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body});
     assert.equal(local.status,200);
+    const productionStatus=await new Promise((resolve,reject)=>{
+      const request=require('node:http').request(address,{method:'POST',headers:{Host:'folio-murex-pi.vercel.app',Origin:'https://folio-murex-pi.vercel.app','Content-Type':'application/json'}},(response)=>{response.resume();response.on('end',()=>resolve(response.statusCode))});
+      request.on('error',reject);
+      request.end(body);
+    });
+    assert.equal(productionStatus,200);
     const foreign=await fetch(address,{method:'POST',headers:{Origin:'https://example.com','Content-Type':'application/json'},body});
     assert.equal(foreign.status,403);
   });
