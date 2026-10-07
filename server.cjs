@@ -108,7 +108,21 @@ function createAppServer({key = process.env.FOLIO_KAKAO_REST_KEY || '', libraryK
         if (request.method !== 'GET') return sendJson(response, 405, {error:'Method not allowed'});
         if (origin && !response.getHeader('Access-Control-Allow-Origin')) return sendJson(response, 403, {error:'Origin not allowed'});
         const category=String(url.searchParams.get('category') || 'fiction'),id=String(url.searchParams.get('id') || '');
-        const book=bestsellerCache.get(category)?.value.books.find((item)=>item.id===id);
+        let books=bestsellerCache.get(category)?.value.books;
+        if (!books) {
+          const target=bestsellerUrl(category);
+          if (!target) return sendJson(response,400,{error:'올바르지 않은 도서 분야입니다.'});
+          const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
+          try {
+            const upstream=await requestAladin(()=>fetchImpl(target,{signal:controller.signal,headers:{Accept:'text/html'}}));
+            if (!upstream.ok) throw Error('Upstream '+upstream.status);
+            books=parseBestsellers(await upstream.text(),category);
+            if (books.length<3) throw Error('Bestseller page changed');
+            bestsellerCache.set(category,{value:{books,source:'aladin',category,updatedAt:new Date().toISOString(),url:target},expires:Date.now()+6*60*60*1000});
+          } catch {return sendJson(response,502,{error:'주간 베스트셀러 목록을 불러오지 못했습니다.'})}
+          finally {clearTimeout(timer)}
+        }
+        const book=books.find((item)=>item.id===id);
         if (!book) return sendJson(response,404,{error:'현재 주간 순위에서 찾을 수 없는 책입니다.'});
         const cached=bestsellerDetails.get(id);
         if(cached && cached.expires>Date.now())return sendJson(response,200,cached.value);

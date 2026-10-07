@@ -1,0 +1,10 @@
+.git/
+.env
+.env.*
+!.env.example
+versions/
+docs/
+eval/
+supabase/
+*.test.cjs
+lib/*.test.cjs
