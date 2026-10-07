@@ -20,20 +20,7 @@ const ROOM_THEMES={
   '경제':{id:'economy',name:'경제의 서재'}
 };
 const INTERESTS = ['소설','일과 커리어','마음과 관계','인문·사회','과학','여행','경제'];
-const GOALS = ['새로운 관점','가볍게 읽기','실무에 적용','몰입하는 이야기','마음 돌보기','나를 이해하기','새로운 지식 얻기','습관 바꾸기','커리어 방향 찾기'];
-const GOAL_SEARCH = {'실무에 적용':'case studies','새로운 관점':'rethinking','몰입하는 이야기':'gripping novel','가볍게 읽기':'short books','마음 돌보기':'healing comfort','나를 이해하기':'self discovery identity','새로운 지식 얻기':'accessible introduction','습관 바꾸기':'habit change','커리어 방향 찾기':'career planning'};
-const GOAL_DESCRIPTION = {
-  '실무에 적용':/case stud(?:y|ies)|hands-on|step-by-step|exercises?|workbook|practical (?:guide|examples?|tools?|strategies)|real-world examples?|actionable (?:advice|insights?|steps?)|실습|사례 연구|실전 사례|단계별|워크북|실무 적용|현장 사례/i,
-  '새로운 관점':/new perspective|fresh perspective|rethinks?|reexamines?|reframes?|challenges? (?:conventional|accepted|traditional)|new way (?:of|to) (?:look|think|see)|different approach|새로운 관점|통념을|다시 생각|재해석|새롭게 바라/i,
-  '몰입하는 이야기':/gripping|page.turner|unputdownable|riveting|absorbing (?:story|novel|tale)|compelling (?:story|novel|tale)|몰입|흡입력|손에 땀|긴장감/i,
-  '가볍게 읽기':/lighthearted|light-hearted|easy.to.read|quick read|breezy|short chapters|short stories|가볍게 읽|짧은 글|짧은 에피소드/i,
-  '마음 돌보기':/comfort|healing|self.care|emotional recovery|위로|치유|마음 돌봄|마음을 돌보|불안을 다스|회복을 돕/i,
-  '나를 이해하기':/self.discovery|self.awareness|introspection|personal identity|자기 이해|자아 탐색|정체성|나를 이해|자신을 이해|내면을 들여다/i,
-  '새로운 지식 얻기':/accessible introduction|explains? (?:the|how|why)|beginner.s guide|입문|알기 쉽게 설명|쉽게 풀어|원리를 설명|지식을 전하/i,
-  '습관 바꾸기':/habit change|build(?:ing)? habits?|change (?:your )?behavior|daily routine|습관을 바꾸|습관을 만들|새로운 습관|행동 변화|루틴을 만들/i,
-  '커리어 방향 찾기':/career planning|career change|career path|job search|직업 선택|진로 탐색|커리어 전환|이직 준비|취업 준비|진로를 찾/i
-};
-const GOAL_TITLE = {'실무에 적용':/\b(?:applied|practical|hands-on|case studies|for (?:business )?decision making)\b|실전|실무|사례 연구/i,'새로운 관점':/\b(?:rethinking|reframing|a new perspective|a different perspective)\b|새로운 관점|다시 생각/i,'습관 바꾸기':/\bhabits?\b|습관|루틴/i,'커리어 방향 찾기':/\bcareer\b|커리어|진로|이직/i};
+const GOALS = ['새로운 관점','가볍게 읽기','실무에 적용','몰입하는 이야기'];
 const VIBES = ['다정한 위로','손에 땀 나는 이야기','생각이 깊어지는','낯선 세계','현실적인 성장','가볍고 유쾌한'];
 const CAREER_FOCUS = ['커리어 전환','일하는 방식','팀과 리더십','비즈니스 전략','데이터로 판단','영업과 고객','금융 산업'];
 const CAREER_SEARCH = {'커리어 전환':'career change job search','일하는 방식':'work productivity habits','팀과 리더십':'team leadership management','비즈니스 전략':'business strategy model','데이터로 판단':'data analysis decision making','영업과 고객':'sales customer experience','금융 산업':'finance banking investment'};
@@ -97,13 +84,13 @@ function goalEvidence(book,goal){
   const description=plainBookText(book.description);
   const shortPageHint=goal==='가볍게 읽기'&&Number(book.pages)>0&&Number(book.pages)<=250?{label:`${book.source==='openlibrary'?'약 ':''}${book.pages}쪽 분량`,verified:false,basis:'pages'}:null;
   const title=plainBookText(book.title);
-  const titlePattern=GOAL_TITLE[goal];
+  const titlePattern=goal==='실무에 적용'?/\b(?:applied|practical|hands-on|case studies|for (?:business )?decision making)\b|실전|실무|사례 연구/i:goal==='새로운 관점'?/\b(?:rethinking|reframing|a new perspective|a different perspective)\b|새로운 관점|다시 생각/i:null;
   const titleFound=titlePattern?.exec(title);
   const fallback=shortPageHint||(titleFound?{label:`제목에 ‘${titleFound[0]}’ 표현`,verified:false,basis:'title'}:null);
   if(book.source==='example'||!description||description.startsWith('folio 편집 태그:'))return fallback;
   if(book.aiRecommendation?.evidence&&description.toLocaleLowerCase().includes(book.aiRecommendation.evidence.toLocaleLowerCase()))return {label:'책 소개에 ‘'+book.aiRecommendation.evidence+'’',verified:true,basis:'gemini'};
   if(description.length<80||/^CD-ROM contains|^Includes? (?:a )?(?:CD|DVD)/i.test(description))return fallback;
-  const pattern=GOAL_DESCRIPTION[goal];
+  const pattern=goal==='실무에 적용'?/case stud(?:y|ies)|hands-on|step-by-step|exercises?|workbook|practical (?:guide|examples?|tools?|strategies)|real-world examples?|actionable (?:advice|insights?|steps?)|실습|사례 연구|실전 사례|단계별|워크북|실무 적용|현장 사례/i:goal==='새로운 관점'?/new perspective|fresh perspective|rethinks?|reexamines?|reframes?|challenges? (?:conventional|accepted|traditional)|new way (?:of|to) (?:look|think|see)|different approach|새로운 관점|통념을|다시 생각|재해석|새롭게 바라/i:goal==='몰입하는 이야기'?/gripping|page.turner|unputdownable|riveting|absorbing (?:story|novel|tale)|compelling (?:story|novel|tale)|몰입|흡입력|손에 땀|긴장감/i:goal==='가볍게 읽기'?/lighthearted|light-hearted|easy.to.read|quick read|breezy|short chapters|short stories|가볍게 읽|짧은 글|짧은 에피소드/i:null;
   const found=pattern?.exec(description);
   return found?{label:`책 소개에 ‘${found[0]}’ 표현`,verified:true,basis:'description'}:fallback;
 }
@@ -391,7 +378,7 @@ function domesticQuery(query){if(query)return query;const p=state.profile;if(p.i
 async function searchKoreanBooks(query,page){try{const base=location.port==='8765'&&/^(localhost|127\.0\.0\.\d+)$/.test(location.hostname)?'http://localhost:8767':'';const data=await fetchJson(base+'/api/books?query='+encodeURIComponent(query)+'&page='+page,9000);kakaoConfigured=!!data.configured;if(!data.configured)return {books:[],source:'kakao'};const interest=state.profile.interests[0]||'';return {books:(data.books||[]).map((book)=>({...book,searchInterest:interest})),source:'kakao'}}catch(error){kakaoConfigured=/HTTP 429/.test(error.message)?'quota':false;console.info('Kakao Books unavailable:',error.message);return {books:[],source:'kakao'}}}
 async function searchRemote(query,page=1){const q=encodeURIComponent(query);try{const language=/[가-힣]/.test(query)?'ko':'en';const term=query.toLowerCase()==='fiction'?'subject=fiction':'q='+q;const data=await fetchOpenLibrary('https://openlibrary.org/search.json?'+term+'&lang='+language+'&limit=40&page='+page+'&fields=key,title,author_name,cover_i,number_of_pages_median,subject,description');const openBooks=(data.docs||[]).map(normalizeOpen).filter((b)=>b.title);if(openBooks.length)return {books:openBooks,source:'openlibrary'}}catch(e){console.info('Open Library unavailable:',e.message)}return {books:[],source:'example'}}
 function candidateQuery(){const p=state.profile;if(p.interests.includes('일과 커리어')&&p.careerFocus.length)return CAREER_SEARCH[p.careerFocus[0]];const keywords={'소설':'fiction','일과 커리어':'career development business','마음과 관계':'psychology','인문·사회':'social science','과학':'science','여행':'travel','경제':'finance'};if(p.interests.length&&p.vibes.length)return (keywords[p.interests[0]]||p.interests[0])+' '+VIBE_SEARCH[p.vibes[0]];if(p.interests.length)return keywords[p.interests[0]]||p.interests[0];if(p.taste?.liked)return Taste.ASPECTS[p.taste.liked.aspect].english;if(p.vibes.length)return VIBE_SEARCH[p.vibes[0]];if(p.favorite.trim())return p.favorite.trim();if(state.saved.length)return state.saved[0].author;if(p.goals.includes('실무에 적용'))return 'business';if(p.goals.includes('새로운 관점'))return 'ideas';return 'books'}
-function candidateQueries(){const first=candidateQuery(),p=state.profile;const keywords={'소설':'fiction','일과 커리어':'career development business','마음과 관계':'psychology','인문·사회':'social science','과학':'science','여행':'travel','경제':'finance'};const extra=p.favorite.trim()&&p.favorite.trim()!==first?p.favorite.trim():p.careerFocus.length>1?CAREER_SEARCH[p.careerFocus[1]]:p.interests.length>1?keywords[p.interests[1]]||p.interests[1]:'';const base=p.careerFocus.length?CAREER_SEARCH[p.careerFocus[0]].split(' ').slice(0,2).join(' '):keywords[p.interests[0]]||'';const purpose=p.goals.length&&base?base+' '+GOAL_SEARCH[p.goals[0]]:'';return [...new Set([first,purpose,extra].filter(Boolean))].slice(0,3)}
+function candidateQueries(){const first=candidateQuery(),p=state.profile;const keywords={'소설':'fiction','일과 커리어':'career development business','마음과 관계':'psychology','인문·사회':'social science','과학':'science','여행':'travel','경제':'finance'};const extra=p.favorite.trim()&&p.favorite.trim()!==first?p.favorite.trim():p.careerFocus.length>1?CAREER_SEARCH[p.careerFocus[1]]:p.interests.length>1?keywords[p.interests[1]]||p.interests[1]:'';const purposeTerms={'실무에 적용':'case studies','새로운 관점':'rethinking','몰입하는 이야기':'gripping novel','가볍게 읽기':'short books'};const base=p.careerFocus.length?CAREER_SEARCH[p.careerFocus[0]].split(' ').slice(0,2).join(' '):keywords[p.interests[0]]||'';const purpose=p.goals.length&&base?base+' '+purposeTerms[p.goals[0]]:'';return [...new Set([first,purpose,extra].filter(Boolean))].slice(0,3)}
 async function loadBooks(query,page=1){
   const serial=++requestSerial;currentQuery=query||'';aiStatus='idle';quickLoading=quickActive&&!currentQuery;renderShortlist();
   if(!currentQuery&&!anySignal()){const start=(discoveryRound%3)*7;currentBooks=[...SEEDS.slice(start),...SEEDS.slice(0,start)];currentSource='curated';currentPage=0;quickLoading=false;renderShortlist();renderFeed();renderFrontPicks();renderTaste(false);return}

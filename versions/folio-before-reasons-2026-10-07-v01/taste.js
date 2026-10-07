@@ -8,13 +8,7 @@
     practical: {label:'일에 쓰는 사례', korean:'실무 사례 비즈니스', english:'practical case studies business', pattern:/사례|실무|실전|현장|실습|case stud(?:y|ies)|practical|real.world|hands.on/i},
     suspense: {label:'긴장감 있는 전개', korean:'추리 스릴러 소설', english:'thriller mystery suspense', pattern:/긴장|반전|추리|미스터리|스릴러|범인|suspense|thriller|mystery|twist/i},
     short: {label:'짧은 분량', korean:'짧은 책', english:'short books', pattern:/짧은|단편|short stor|short read|brief/i},
-    dark: {label:'어두운 분위기', korean:'어두운 소설', english:'dark fiction', pattern:/어두운|잔혹|폭력|공포|호러|dark|violent|horror/i},
-    prose: {label:'문장이 좋아서', korean:'문장 표현 소설', english:'lyrical prose literary fiction', pattern:/문장|문체|표현|산문|서정|문학적 언어|prose|lyrical|beautifully written|writing style/i},
-    world: {label:'세계관과 배경', korean:'세계관 배경 소설', english:'worldbuilding setting fiction', pattern:/세계관|배경|시대상|가상 세계|환상 세계|worldbuilding|imaginary world|setting|fictional world/i},
-    humor: {label:'유머와 가벼움', korean:'유쾌한 소설', english:'humorous lighthearted fiction', pattern:/유머|유쾌|웃음|코미디|익살|humou?r|funny|comedy|lighthearted/i},
-    learning: {label:'새로운 지식', korean:'지식 교양 입문', english:'accessible introduction knowledge', pattern:/배우|알려주|설명|입문|교양|원리|지식|learn|explain|introduction to|understanding/i},
-    reflection: {label:'나를 돌아보게 해서', korean:'자기 이해 성찰', english:'self reflection identity', pattern:/자기 이해|자아|정체성|성찰|내면|나를 돌아|자신을 돌아|self.reflection|self.discovery|identity|introspection/i},
-    change: {label:'실천할 방법', korean:'실천 방법 습관', english:'actionable habits step by step', pattern:/실천|행동 변화|습관|루틴|단계별|방법을 제시|actionable|habit|routine|step.by.step/i}
+    dark: {label:'어두운 분위기', korean:'어두운 소설', english:'dark fiction', pattern:/어두운|잔혹|폭력|공포|호러|dark|violent|horror/i}
   };
   function normalizeEntry(value) {
     const title = typeof value?.title === 'string' ? value.title.trim().slice(0, 80) : '';
@@ -40,7 +34,7 @@
       if (!entry) continue;
       if (title === entry.title.toLocaleLowerCase()) {result.excluded=true;continue}
       if (book?.source === 'example') continue;
-      if (['people','comfort','suspense','dark','prose','world','humor'].includes(entry.aspect) && !fiction) continue;
+      if (['people','comfort','suspense','dark'].includes(entry.aspect) && !fiction) continue;
       if (['workflow','practical'].includes(entry.aspect) && !work) continue;
       const aspect = ASPECTS[entry.aspect];
       let evidence = '';
