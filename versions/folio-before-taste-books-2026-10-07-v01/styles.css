@@ -743,28 +743,3 @@ footer{background:#e8eef0;border-top:1px solid var(--line)}
 .reason-feedback button{border:1px solid #b9bcb5;background:transparent;color:#454b46;padding:5px 8px;font:inherit;font-size:.64rem;cursor:pointer}
 .reason-feedback button[aria-pressed="true"]{border-color:#4d6860;background:#e5eeea;color:#254b3e;font-weight:700}
 .reason-feedback button:focus-visible{outline:2px solid #325c82;outline-offset:2px}
-
-/* One real reading preference takes precedence over a generic bestseller list. */
-.taste-starter{margin-top:22px;padding:18px 0 0;border-top:1px solid #cbc8c1}
-.taste-starter>div>strong{display:block;font-size:.93rem;letter-spacing:-.035em}
-.taste-starter>div>p{margin:5px 0 14px;color:var(--muted);font-size:.73rem;line-height:1.5}
-.taste-form{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(120px,1fr) minmax(0,1.4fr) minmax(120px,1fr) auto;gap:8px;align-items:end}
-.taste-form label{display:grid;gap:5px;min-width:0;font-size:.69rem;font-weight:700}
-.taste-form small{font-weight:400;color:var(--muted)}
-.taste-form input,.taste-form select{width:100%;min-width:0;height:38px;padding:0 9px;border:1px solid #bdbab3;border-radius:2px;background:var(--paper);color:var(--ink);font-size:.73rem}
-.taste-form button{height:38px;padding:0 13px;border:1px solid var(--ink);border-radius:2px;background:var(--ink);color:var(--paper);font-size:.72rem;font-weight:700;white-space:nowrap}
-.taste-summary{margin:11px 0 0;color:#56594f;font-size:.69rem;line-height:1.5}
-.taste-book-actions{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 15px}
-.taste-book-actions button{border:0;border-bottom:1px solid #6e7169;background:none;padding:3px 0;color:#51564e;font-size:.69rem;text-align:left}
-.book-evidence__caution{margin:8px 0 0;padding:7px 9px;background:#f3eee8;color:#635045;font-size:.68rem;line-height:1.5}
-.shelf-pager{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px;color:#534d44;font-size:.72rem;font-weight:700}
-.shelf-pager button{width:32px;height:30px;border:1px solid #aa9d8b;background:#f7f4ed;color:#4a453e;font-size:.95rem}
-.shelf-pager button:disabled{opacity:.35;cursor:default}
-.board-tools{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:0 0 18px}
-.board-tools label:first-child{flex:1 1 220px}
-.board-tools input,.board-tools select{width:100%;height:39px;padding:0 10px;border:1px solid #c6c1b7;background:var(--paper);color:var(--ink);font-size:.73rem}
-.board-tools label:nth-child(2){flex:0 0 134px}
-.board-tools>span{font-size:.69rem;color:var(--muted)}
-.board-more{display:block;margin:14px auto 0}
-@media(max-width:900px){.taste-form{grid-template-columns:repeat(2,minmax(0,1fr))}.taste-form button{grid-column:1/-1}}
-@media(max-width:520px){.taste-form{gap:8px}.board-tools label:first-child{flex-basis:100%}.board-tools label:nth-child(2){flex:1 1 130px}}
